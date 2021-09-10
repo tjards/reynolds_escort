@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-The project implements Reynolds Rules of Flocking
+The project implements Reynolds Rules of Flocking ("boids")
 
 Created on Tue Dec 22 11:48:18 2020
 
@@ -25,7 +25,7 @@ import pickle
 Ti      = 0         # initial time
 Tf      = 30        # final time 
 Ts      = 0.02      # sample time
-nVeh    = 20        # number of vehicles
+nVeh    = 7        # number of vehicles
 iSpread = 100        # initial spread of vehicles
 escort  = 1         # escort duty? (0 = no, 1 = yes, overides some of the other setting )
 
@@ -86,7 +86,7 @@ oSpread = iSpread*2
 # obstacles[2,:] = np.maximum(oSpread*(np.random.rand(1,nObs)-0.5),14)     # position (z)
 # obstacles[3,:] = np.random.rand(1,nObs)+0.5                             # radii of obstacle(s)
 
-# manual - make the target an obstacle
+# make the target an obstacle
 if escort == 1:
     obstacles[0,0] = targets[0,0]     # position (x)
     obstacles[1,0] = targets[1,0]     # position (y)
@@ -165,7 +165,7 @@ while round(t,3) < Tf:
     targets[2,:] = targets[2,:] + tSpeed*0.0005
     
     # Update the obstacle
-    # manual - make the target an obstacle
+    # -------------------
     if escort == 1:
         obstacles[0,:] = targets[0,0]     # position (x)
         obstacles[1,:] = targets[1,0]     # position (y)
@@ -191,14 +191,13 @@ while round(t,3) < Tf:
     t += Ts
     i += 1
         
-    #%% Compute Trajectory
-    # --------------------
-    
-    # updates 
+
+    # Update centroid
+    # ---------------
     centroid = tools.centroid(state[0:3,:].transpose())
     swarm_prox = tactic.sigma_norm(centroid.ravel()-targets[0:3,0])
      
-    #if flocking
+    #if flocking (legacy)
     if tactic_type < 2 :
         trajectory = targets 
              

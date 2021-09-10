@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 
-Compute the control inputs for dynamic encirclement tactic  
+Compute the control inputs  
 
 Created on Mon Jan  4 12:45:55 2021
 
@@ -32,10 +32,6 @@ c1_b = 1                # obstacle avoidance
 c2_b = 2*np.sqrt(1)
 c1_g = 3                # target tracking
 c2_g = 2*np.sqrt(3)
-
-# === Encirclement+ ===
-c1_d = 2                # encirclement 
-c2_d = 2*np.sqrt(2)
 
 #%% Some function that are used often
 # ---------------------------------
@@ -87,12 +83,10 @@ def phi_b(q_i, q_ik, d_b):
     phi_b = rho_h(z/d_b) * (sigma_1(z-d_b)-1)    
     return phi_b
 
-# Reynolds flocking functions 
 def norm_sat(u,maxu):
     norm1b = np.linalg.norm(u)
     u_out = maxu*np.divide(u,norm1b)
     return u_out
-
 
     
 #%% Tactic Command Equations 
@@ -102,12 +96,11 @@ def commands(states_q, states_p, obstacles, walls, r, d, r_prime, d_prime, targe
     # initialize 
     r_a = sigma_norm(r)                         # lattice separation (sensor range)
     d_a = sigma_norm(d)                         # lattice separation (goal)
-    r_b = sigma_norm(r_prime)                   # obstacle separation (sensor range)
+    #r_b = sigma_norm(r_prime)                   # obstacle separation (sensor range)
     d_b = sigma_norm(d_prime)                   # obstacle separation (goal range)
     u_int = np.zeros((3,states_q.shape[1]))     # interactions
     u_obs = np.zeros((3,states_q.shape[1]))     # obstacles 
     u_nav = np.zeros((3,states_q.shape[1]))     # navigation
-    u_enc = np.zeros((3,states_q.shape[1]))     # encirclement 
     #u_enc2 = np.zeros((3,states_q.shape[1]))    # ensherement
     cmd_i = np.zeros((3,states_q.shape[1]))     # store the commands
         
@@ -115,7 +108,7 @@ def commands(states_q, states_p, obstacles, walls, r, d, r_prime, d_prime, targe
     if tactic_type == 0:
         distances = reynolds_tools.order(states_q)
    
-    # for each vehicle/node in the network
+    # for each agent/node in the network
     for k_node in range(states_q.shape[1]): 
                  
         # Reynolds Flocking
@@ -201,7 +194,7 @@ def commands(states_q, states_p, obstacles, walls, r, d, r_prime, d_prime, targe
         if tactic_type == 1:
             cmd_i[:,k_node] = u_int[:,k_node] + u_obs[:,k_node] + u_nav[:,k_node] 
         elif tactic_type == 0:
-            cmd_i[:,k_node] = cmd_i[:,k_node] + u_obs[:,k_node] # adds the saber obstacle avoidance 
+            cmd_i[:,k_node] = cmd_i[:,k_node] + u_obs[:,k_node] # adds the saber obstacle avoidance (other agents are not obstacles)
 
     cmd = cmd_i    
     
